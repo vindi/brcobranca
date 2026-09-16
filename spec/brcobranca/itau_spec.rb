@@ -19,7 +19,8 @@ describe Brcobranca::Boleto::Itau do
       agencia: '0810',
       conta_corrente: '53678',
       convenio: 12_387,
-      numero_documento: '12345678'
+      numero_documento: '12345678',
+      instrucao1: 'Pagavel em qualquer banco'
     }
   end
 
@@ -241,6 +242,27 @@ describe Brcobranca::Boleto::Itau do
       expect(File.stat(tmp_file.path).zero?).to be_falsey
       expect(File.delete(tmp_file.path)).to eql(1)
       expect(File.exist?(tmp_file.path)).to be_falsey
+    end
+  end
+
+  context 'CNPJ alfanumérico do pagador — novo formato Receita Federal (ago/2026)' do
+    let(:boleto) do
+      described_class.new(@valid_attributes.merge(
+        sacado_documento: 'K8SDR6DN000121',
+        instrucao1: 'Pagavel em qualquer banco'
+      ))
+    end
+
+    it 'preserva o CNPJ alfanumérico no sacado_documento' do
+      expect(boleto.sacado_documento).to eql('K8SDR6DN000121')
+    end
+
+    it 'formata o sacado_documento como CNPJ alfanumérico' do
+      expect(boleto.sacado_documento.formata_documento).to eql('K8.SDR.6DN/0001-21')
+    end
+
+    it 'gera o boleto em PDF sem erro' do
+      expect { boleto.to('pdf') }.not_to raise_error
     end
   end
 
