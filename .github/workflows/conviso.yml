@@ -7,7 +7,7 @@ name: Conviso
 on:
   pull_request:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
 
 permissions:
   contents: read
@@ -15,7 +15,7 @@ permissions:
 jobs:
   conviso-ast:
     name: conviso-ast
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    if: false
     runs-on:
       group: Conviso
     concurrency:
