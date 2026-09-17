@@ -22,28 +22,34 @@ module Brcobranca
       somente_numeros.gsub(/^(.{5})(.{3})$/, '\1-\2')
     end
 
-    # Formata como CNPJ
+    # Formata como CNPJ (suporta CNPJs alfanuméricos a partir de 08/2026)
     #
     # @return [String]
     # @example
     #  "12345678000901".to_br_cnpj #=> 12.345.678/0009-01
+    #  "K8SDR6DN000121".to_br_cnpj #=> K8.SDR.6DN/0001-21
     def to_br_cnpj
-      somente_numeros.gsub(/^(.{2})(.{3})(.{3})(.{4})(.{2})$/, '\1.\2.\3/\4-\5')
+      somente_alfanumericos.upcase.gsub(/^(.{2})(.{3})(.{3})(.{4})(.{2})$/, '\1.\2.\3/\4-\5')
     end
 
     # Gera formatação automática do documento baseado no tamanho do campo.
+    # Verifica CNPJ alfanumérico (14 chars) antes dos checks numéricos para evitar
+    # que letras no CNPJ sejam descartadas e o resultado seja interpretado como CEP.
     #
     # @return [String] Retorna a mesma caso não encontre o formato adequado.
     # @example
     #  "12345678000901".formata_documento #=> 12.345.678/0009-01
+    #  "K8SDR6DN000121".formata_documento #=> K8.SDR.6DN/0001-21
     #  "85253100".formata_documento #=> "85253-100"
     #  "12345678901".formata_documento #=> 123.456.789-01
     #  "12345".formata_documento #=> 12345
     def formata_documento
-      case somente_numeros.size
-      when 8 then to_br_cep
-      when 11 then to_br_cpf
-      when 14 then to_br_cnpj
+      if somente_alfanumericos.size == 14
+        to_br_cnpj
+      elsif somente_numeros.size == 11
+        to_br_cpf
+      elsif somente_numeros.size == 8
+        to_br_cep
       else
         self
       end
@@ -53,9 +59,19 @@ module Brcobranca
     #
     # @return [String]
     # @example
-    #   1a23e45+".somente_numeros #=> 12345
+    #   "1a23e45+".somente_numeros #=> "12345"
     def somente_numeros
       to_s.gsub(/\D/, '')
+    end
+
+    # Remove caracteres que não sejam alfanuméricos (letras e dígitos).
+    # Necessário para suporte a CNPJ alfanumérico (Receita Federal, obrigatório 08/2026).
+    #
+    # @return [String]
+    # @example
+    #   "K8.SDR.6DN/0001-21".somente_alfanumericos #=> "K8SDR6DN000121"
+    def somente_alfanumericos
+      to_s.gsub(/[^0-9A-Za-z]/, '')
     end
 
     # Monta a linha digitável padrão para todos os bancos segundo a BACEN.
