@@ -19,6 +19,7 @@ module Brcobranca
       expect(88_394_510_000_103.to_br_cnpj).to eql('88.394.510/0001-03')
       expect('88394510000103'.to_br_cnpj).to eql('88.394.510/0001-03')
       expect('88.394.510/0001-03'.to_br_cnpj).to eql('88.394.510/0001-03')
+      expect('K8SDR6DN000121'.to_br_cnpj).to eql('K8.SDR.6DN/0001-21')
     end
 
     it 'Formata números automáticamente de acordo com o número de caracteres' do
@@ -31,6 +32,8 @@ module Brcobranca
       expect(88_394_510_000_103.formata_documento).to eql('88.394.510/0001-03')
       expect('88394510000103'.formata_documento).to eql('88.394.510/0001-03')
       expect('88.394.510/0001-03'.formata_documento).to eql('88.394.510/0001-03')
+      expect('K8SDR6DN000121'.formata_documento).to eql('K8.SDR.6DN/0001-21')
+      expect('K8.SDR.6DN/0001-21'.formata_documento).to eql('K8.SDR.6DN/0001-21')
       expect('8839'.formata_documento).to eql('8839')
       expect('8839451000010388394510000103'.formata_documento).to eql('8839451000010388394510000103')
     end
